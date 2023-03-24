@@ -1,38 +1,54 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
+// const express = require('express');
+// import * as http from 'http';
+// const { Server } = require('socket.io');
+// const cors = require('cors');
+// export const app = express();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.app = void 0;
+// const route = require('./routes/routes');
+// app.use(cors({ origin: '*' }));
+// app.use(route);
+// const server = http.createServer(app);
+// const io = new Server(server, {
+//     cors: {
+//         origin: '*',
+//         methods: ['GET', 'POST'],
+//     },
+// });
+// io.on('connection', (socket) => {
+//     socket.on('join', ({ name, room }) => {
+//         socket.join(room);
+//         console.log(`user ${name} is joined the room #${room}`);
+//     });
+//     io.on('disconnect', (socket) => {
+//         console.log('user is disconnected');
+//     });
+// });
 const express = require('express');
-exports.app = express();
-const dotenv_1 = __importDefault(require("dotenv"));
-dotenv_1.default.config();
+const http = require('http');
+const { Server } = require('socket.io');
 const cors = require('cors');
-const http = __importStar(require("http"));
-exports.app.use(cors());
+exports.app = express();
+const route = require('./routes/routes');
+exports.app.use(cors({ origin: '*' }));
+exports.app.use(route);
 const server = http.createServer(exports.app);
+const io = new Server(server, {
+    cors: {
+        origin: '*',
+        methods: ['GET', 'POST'],
+    },
+});
+io.on('connection', (socket) => {
+    socket.on('join', ({ name, room }) => {
+        socket.join(room);
+    });
+    io.on('disconnect', () => {
+        console.log('Disconnect');
+    });
+});
+// server.listen(5000, () => {
+//     console.log('Server is running');
+// });
 //# sourceMappingURL=app.js.map

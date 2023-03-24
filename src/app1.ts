@@ -3,11 +3,13 @@ const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
 export const app = express();
+
 const route = require('./routes/routes');
+
 app.use(cors({ origin: '*' }));
 app.use(route);
 
-export const server = http.createServer(app);
+const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
@@ -19,10 +21,13 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
     socket.on('join', ({ name, room }) => {
         socket.join(room);
-        console.log(`user ${name} is connected to room #${room}`);
     });
 
     io.on('disconnect', () => {
         console.log('Disconnect');
     });
+});
+
+server.listen(5000, () => {
+    console.log('Server is running');
 });
