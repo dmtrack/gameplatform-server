@@ -9,7 +9,7 @@ dotenv_1.default.config();
 const port = process.env.SOCKETPORT || 5000;
 const start = async () => {
     try {
-        app_1.app.listen(port, () => {
+        app_1.server.listen(port, () => {
             console.log(`Server has successfully started on port:${port}`);
         });
     }

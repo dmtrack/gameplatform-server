@@ -1,3 +1,5 @@
+import { addUser } from './users';
+
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -19,7 +21,20 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
     socket.on('join', ({ name, room }) => {
         socket.join(room);
-        console.log(`user ${name} is connected to room #${room}`);
+
+        const { user } = addUser({ name, room });
+
+        socket.emit('message', {
+            data: {
+                name: 'admin',
+                message: `user ${name} is entered to the room`,
+            },
+        });
+        socket.broadcast.to(user.room).emit('message', {
+            data: {
+                user: { name: 'admin', message: `${user.name} has joined}` },
+            },
+        });
     });
 
     io.on('disconnect', () => {
