@@ -20,18 +20,37 @@ const io = new Server(exports.server, {
 io.on('connection', (socket) => {
     socket.on('join', ({ name, room }) => {
         socket.join(room);
-        console.log(socket);
-        const { user } = (0, users_1.addUser)({ name, room });
-        console.log(user.room);
-        // socket.emit('message', {
-        //     data: {
-        //         name: 'admin',
-        //         message: `user with ${name} is entered to the room`,
-        //     },
-        // });
-        socket.broadcast.to(user.room).emit('enter', {
-            data: { user: { name: 'admin', message: `${user} has joined}` } },
+        const { user, isExist } = (0, users_1.addUser)({ name, room });
+        let userMessage = isExist
+            ? `${user.name}, let's continue messaging`
+            : `${user.name} welcome to the room ${user.room}`;
+        socket.emit('message', {
+            data: {
+                user: {
+                    name: `${user.name}`,
+                    message: userMessage,
+                },
+            },
         });
+        socket.broadcast.to(user.room).emit('message', {
+            data: {
+                user: {
+                    name: `${user.name}`,
+                    message: userMessage,
+                },
+            },
+        });
+        socket.to(user.room).emit('joinRoom', {
+            data: { users: (0, users_1.getRoomUsers)(user.room) },
+        });
+    });
+    socket.on('sendMessage', ({ message, params }) => {
+        const user = (0, users_1.findUser)(params);
+        if (user) {
+            io.to(user.room).emit('message', {
+                data: { user: { name: user.name, message: message } },
+            });
+        }
     });
     io.on('disconnect', () => {
         console.log('Disconnect');
