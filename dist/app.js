@@ -8,7 +8,6 @@ const cors = require('cors');
 exports.app = express();
 const route = require('./routes/routes');
 exports.app.use(cors());
-exports.app.use(route);
 const admin = 'admin';
 exports.server = http.createServer(exports.app);
 const io = require('socket.io')(exports.server, {
@@ -69,4 +68,5 @@ io.on('connection', (socket) => {
         console.log('Disconnect');
     });
 });
+exports.app.use(route);
 //# sourceMappingURL=app.js.map
