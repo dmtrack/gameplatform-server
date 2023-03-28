@@ -1,27 +1,19 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.server = exports.app = void 0;
 const users_1 = require("./users");
-const dotenv_1 = __importDefault(require("dotenv"));
 const express = require('express');
 const http = require('http');
-const { Server } = require('socket.io');
 const cors = require('cors');
 exports.app = express();
 const route = require('./routes/routes');
-exports.app.use(cors({ origin: '*' }));
+exports.app.use(cors());
 exports.app.use(route);
-dotenv_1.default.config();
-const PORT = process.env.SOCKETPORT;
-exports.server = http.createServer(exports.app);
 const admin = 'admin';
-const io = new Server(exports.server, {
+exports.server = http.createServer(exports.app);
+const io = require('socket.io')(exports.server, {
     cors: {
         origin: '*',
-        methods: ['GET', 'POST'],
     },
 });
 io.on('connection', (socket) => {
@@ -76,8 +68,5 @@ io.on('connection', (socket) => {
     io.on('disconnect', () => {
         console.log('Disconnect');
     });
-});
-exports.server.listen(PORT, () => {
-    console.log(`Server has successfully started on port:${PORT}`);
 });
 //# sourceMappingURL=app.js.map
