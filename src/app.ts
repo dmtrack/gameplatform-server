@@ -11,7 +11,7 @@ app.use(cors({ origin: '*' }));
 app.use(route);
 dotenv.config();
 
-const PORT = process.env.SOCKETPORT;
+const PORT = 8000;
 
 export const server = http.createServer(app);
 const admin = 'admin';
