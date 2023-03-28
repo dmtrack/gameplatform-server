@@ -1,14 +1,17 @@
-// import { server } from './app';
-// import dotenv from 'dotenv';
+import { server } from './app';
+import dotenv from 'dotenv';
+dotenv.config();
 
-// const start = async () => {
-//     try {
-//         server.listen(port, () => {
-//             console.log(`Server has successfully started on port:${port}`);
-//         });
-//     } catch (e) {
-//         console.log(e);
-//     }
-// };
+const port = process.env.PORT;
 
-// start();
+const start = async () => {
+    try {
+        server.listen(port, () => {
+            console.log(`Server has successfully started on port:${port}`);
+        });
+    } catch (e) {
+        console.log(e);
+    }
+};
+
+start();

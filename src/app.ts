@@ -1,25 +1,18 @@
 import { addUser, findUser, getRoomUsers, removeUser } from './users';
 import dotenv from 'dotenv';
-
 const express = require('express');
 const http = require('http');
-const { Server } = require('socket.io');
 const cors = require('cors');
 export const app = express();
 const route = require('./routes/routes');
-app.use(cors({ origin: '*' }));
-app.use(route);
-dotenv.config();
+app.use(cors());
 
-const PORT = 8000;
-
-export const server = http.createServer(app);
 const admin = 'admin';
 
-const io = new Server(server, {
+export const server = http.createServer(app);
+const io = require('socket.io')(server, {
     cors: {
         origin: '*',
-        methods: ['GET', 'POST'],
     },
 });
 
@@ -83,6 +76,4 @@ io.on('connection', (socket) => {
     });
 });
 
-server.listen(PORT, () => {
-    console.log(`Server has successfully started on port:${PORT}`);
-});
+app.use(route);
