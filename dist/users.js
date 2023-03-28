@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRoomUsers = exports.addUser = exports.findUser = void 0;
+exports.removeUser = exports.getRoomUsers = exports.addUser = exports.findUser = void 0;
 const utils_1 = require("./utils/utils");
 let users = [];
 const findUser = (user) => {
@@ -20,4 +20,12 @@ const getRoomUsers = (room) => {
     return users.filter((u) => u.room === room);
 };
 exports.getRoomUsers = getRoomUsers;
+const removeUser = (user) => {
+    const found = (0, exports.findUser)(user);
+    if (found) {
+        users = users.filter(({ room, name }) => room === found.room && name !== found.name);
+    }
+    return found;
+};
+exports.removeUser = removeUser;
 //# sourceMappingURL=users.js.map

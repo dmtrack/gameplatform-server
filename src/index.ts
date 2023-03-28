@@ -1,7 +1,7 @@
 import { server } from './app';
 import dotenv from 'dotenv';
 dotenv.config();
-const port = process.env.SOCKETPORT || 5000;
+const port = process.env.SOCKETPORT;
 
 const start = async () => {
     try {

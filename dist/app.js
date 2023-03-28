@@ -11,6 +11,7 @@ const route = require('./routes/routes');
 exports.app.use(cors({ origin: '*' }));
 exports.app.use(route);
 exports.server = http.createServer(exports.app);
+const admin = 'admin';
 const io = new Server(exports.server, {
     cors: {
         origin: '*',
@@ -27,7 +28,7 @@ io.on('connection', (socket) => {
         socket.emit('message', {
             data: {
                 user: {
-                    name: `${user.name}`,
+                    name: `${admin}`,
                     message: userMessage,
                 },
             },
@@ -35,12 +36,12 @@ io.on('connection', (socket) => {
         socket.broadcast.to(user.room).emit('message', {
             data: {
                 user: {
-                    name: `${user.name}`,
+                    name: `${admin}`,
                     message: userMessage,
                 },
             },
         });
-        socket.to(user.room).emit('joinRoom', {
+        io.to(user.room).emit('joinRoom', {
             data: { users: (0, users_1.getRoomUsers)(user.room) },
         });
     });
@@ -49,6 +50,20 @@ io.on('connection', (socket) => {
         if (user) {
             io.to(user.room).emit('message', {
                 data: { user: { name: user.name, message: message } },
+            });
+        }
+    });
+    socket.on('leftRoom', ({ params }) => {
+        const user = (0, users_1.removeUser)(params);
+        if (user) {
+            const { room, name } = user;
+            io.to(user.room).emit('message', {
+                data: {
+                    user: { name: `${admin}`, message: `${name} has left` },
+                },
+            });
+            io.to(user.room).emit('joinRoom', {
+                data: { users: (0, users_1.getRoomUsers)(user.room) },
             });
         }
     });
