@@ -1,16 +1,80 @@
+import { addUser, findUser, getRoomUsers, removeUser } from './users';
+
 const express = require('express');
-const app = express();
-import dotenv from 'dotenv';
-dotenv.config();
+const http = require('http');
+const { Server } = require('socket.io');
 const cors = require('cors');
+export const app = express();
+const route = require('./routes/routes');
+app.use(cors({ origin: '*' }));
+app.use(route);
 
-const port = process.env.SOCKETPORT;
-import * as http from 'http';
+export const server = http.createServer(app);
+const admin = 'admin';
 
-app.use(cors());
+const io = new Server(server, {
+    cors: {
+        origin: '*',
+        methods: ['GET', 'POST'],
+    },
+});
 
-const server = http.createServer(app);
+io.on('connection', (socket) => {
+    socket.on('join', ({ name, room }) => {
+        socket.join(room);
+        const { user, isExist } = addUser({ name, room });
+        let userMessage = isExist
+            ? `${user.name}, let's continue messaging`
+            : `${user.name} welcome to the room ${user.room}`;
 
-server.listen(port, () => {
-    console.log(`listening on *:${port}`);
+        socket.emit('message', {
+            data: {
+                user: {
+                    name: `${admin}`,
+                    message: userMessage,
+                },
+            },
+        });
+        socket.broadcast.to(user.room).emit('message', {
+            data: {
+                user: {
+                    name: `${admin}`,
+                    message: userMessage,
+                },
+            },
+        });
+        io.to(user.room).emit('joinRoom', {
+            data: { users: getRoomUsers(user.room) },
+        });
+    });
+
+    socket.on('sendMessage', ({ message, params }) => {
+        const user = findUser(params);
+
+        if (user) {
+            io.to(user.room).emit('message', {
+                data: { user: { name: user.name, message: message } },
+            });
+        }
+    });
+
+    socket.on('leftRoom', ({ params }) => {
+        const user = removeUser(params);
+
+        if (user) {
+            const { room, name } = user;
+            io.to(user.room).emit('message', {
+                data: {
+                    user: { name: `${admin}`, message: `${name} has left` },
+                },
+            });
+            io.to(user.room).emit('joinRoom', {
+                data: { users: getRoomUsers(user.room) },
+            });
+        }
+    });
+
+    io.on('disconnect', () => {
+        console.log('Disconnect');
+    });
 });
