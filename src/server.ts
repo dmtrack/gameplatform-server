@@ -3,6 +3,7 @@ import app from './app';
 const debug = require('debug')('socketio-server:server');
 import * as http from 'http';
 import socketServer from './socket';
+import { addUser, findUser, getRoomUsers, removeUser } from './users';
 
 /**
  * Get port from environment and store in Express.
@@ -11,21 +12,74 @@ import socketServer from './socket';
 const port = normalizePort(process.env.PORT || '8000');
 app.set('port', port);
 
-/**
- * Create HTTP server.
- */
-
 const server = http.createServer(app);
-
-/**
- * Listen on provided port, on all network interfaces.
- */
 
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
+const admin = 'admin';
 const io = socketServer(server);
+
+io.on('connection', (socket) => {
+    socket.on('join', ({ name, room }) => {
+        socket.join(room);
+        const { user, isExist } = addUser({ name, room });
+        let userMessage = isExist
+            ? `${user.name}, let's continue messaging`
+            : `${user.name} welcome to the room ${user.room}`;
+
+        socket.emit('message', {
+            data: {
+                user: {
+                    name: `${admin}`,
+                    message: userMessage,
+                },
+            },
+        });
+        socket.broadcast.to(user.room).emit('message', {
+            data: {
+                user: {
+                    name: `${admin}`,
+                    message: userMessage,
+                },
+            },
+        });
+        io.to(user.room).emit('joinRoom', {
+            data: { users: getRoomUsers(user.room) },
+        });
+    });
+
+    socket.on('sendMessage', ({ message, params }) => {
+        const user = findUser(params);
+
+        if (user) {
+            io.to(user.room).emit('message', {
+                data: { user: { name: user.name, message: message } },
+            });
+        }
+    });
+
+    socket.on('leftRoom', ({ params }) => {
+        const user = removeUser(params);
+
+        if (user) {
+            const { room, name } = user;
+            io.to(user.room).emit('message', {
+                data: {
+                    user: { name: `${admin}`, message: `${name} has left` },
+                },
+            });
+            io.to(user.room).emit('joinRoom', {
+                data: { users: getRoomUsers(user.room) },
+            });
+        }
+    });
+
+    io.on('disconnect', () => {
+        console.log('Disconnect');
+    });
+});
 
 function normalizePort(val) {
     const port = parseInt(val, 10);
@@ -47,7 +101,6 @@ function onError(error) {
 
     const bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
 
-    // handle specific listen errors with friendly messages
     switch (error.code) {
         case 'EACCES':
             console.error(bind + ' requires elevated privileges');
@@ -61,10 +114,6 @@ function onError(error) {
             throw error;
     }
 }
-
-/**
- * Event listener for HTTP server "listening" event.
- */
 
 function onListening() {
     const addr = server.address();
