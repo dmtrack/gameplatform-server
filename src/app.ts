@@ -1,20 +1,40 @@
-import { addUser, findUser, getRoomUsers, removeUser } from './users';
-import dotenv from 'dotenv';
 const express = require('express');
 const http = require('http');
+const createError = require('http-errors');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 const cors = require('cors');
+import 'reflect-metadata';
+const indexRouter = require('./routes/index');
+
 export const app = express();
+
+import dotenv from 'dotenv';
+dotenv.config();
+
+import { addUser, findUser, getRoomUsers, removeUser } from './users';
+import socketServer from './socket';
+
 const route = require('./routes/routes');
+
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
 
-const admin = 'admin';
-
-export const server = http.createServer(app);
-const io = require('socket.io')(server, {
-    cors: {
-        origin: '*',
-    },
+app.use(function (req, res, next) {
+    next(createError(404));
 });
+
+const admin = 'admin';
+export const server = http.createServer(app);
+
+const port = process.env.PORT;
+
+const io = socketServer(server);
 
 io.on('connection', (socket) => {
     socket.on('join', ({ name, room }) => {
@@ -76,4 +96,6 @@ io.on('connection', (socket) => {
     });
 });
 
-app.use(route);
+app.use('/', indexRouter);
+
+export default app;
