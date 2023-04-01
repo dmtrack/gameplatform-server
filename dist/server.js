@@ -31,71 +31,71 @@ const app_1 = __importDefault(require("./app"));
 const debug = require('debug')('socketio-server:server');
 const http = __importStar(require("http"));
 const socket_1 = __importDefault(require("./socket"));
-const users_1 = require("./users");
 /**
  * Get port from environment and store in Express.
  */
 const port = normalizePort(process.env.PORT || '8000');
 app_1.default.set('port', port);
 const server = http.createServer(app_1.default);
+console.log(server);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
-const admin = 'admin';
+// const admin = 'admin';
 const io = (0, socket_1.default)(server);
-io.on('connection', (socket) => {
-    socket.on('join', ({ name, room }) => {
-        socket.join(room);
-        const { user, isExist } = (0, users_1.addUser)({ name, room });
-        let userMessage = isExist
-            ? `${user.name}, let's continue messaging`
-            : `${user.name} welcome to the room ${user.room}`;
-        socket.emit('message', {
-            data: {
-                user: {
-                    name: `${admin}`,
-                    message: userMessage,
-                },
-            },
-        });
-        socket.broadcast.to(user.room).emit('message', {
-            data: {
-                user: {
-                    name: `${admin}`,
-                    message: userMessage,
-                },
-            },
-        });
-        io.to(user.room).emit('joinRoom', {
-            data: { users: (0, users_1.getRoomUsers)(user.room) },
-        });
-    });
-    socket.on('sendMessage', ({ message, params }) => {
-        const user = (0, users_1.findUser)(params);
-        if (user) {
-            io.to(user.room).emit('message', {
-                data: { user: { name: user.name, message: message } },
-            });
-        }
-    });
-    socket.on('leftRoom', ({ params }) => {
-        const user = (0, users_1.removeUser)(params);
-        if (user) {
-            const { room, name } = user;
-            io.to(user.room).emit('message', {
-                data: {
-                    user: { name: `${admin}`, message: `${name} has left` },
-                },
-            });
-            io.to(user.room).emit('joinRoom', {
-                data: { users: (0, users_1.getRoomUsers)(user.room) },
-            });
-        }
-    });
-    io.on('disconnect', () => {
-        console.log('Disconnect');
-    });
-});
+// io.on('connection', (socket) => {
+//     socket.on('join', ({ name, room }) => {
+//         socket.join(room);
+//         const { user, isExist } = addUser({ name, room });
+//         let userMessage = isExist
+//             ? `${user.name}, let's continue messaging`
+//             : `${user.name} welcome to the room ${user.room}`;
+//         socket.emit('message', {
+//             data: {
+//                 user: {
+//                     name: `${admin}`,
+//                     message: userMessage,
+//                 },
+//             },
+//         });
+//         socket.broadcast.to(user.room).emit('message', {
+//             data: {
+//                 user: {
+//                     name: `${admin}`,
+//                     message: userMessage,
+//                 },
+//             },
+//         });
+//         io.to(user.room).emit('joinRoom', {
+//             data: { users: getRoomUsers(user.room) },
+//         });
+//     });
+//     socket.on('sendMessage', ({ message, params }) => {
+//         const user = findUser(params);
+//         if (user) {
+//             io.to(user.room).emit('message', {
+//                 data: { user: { name: user.name, message: message } },
+//             });
+//         }
+//     });
+//     socket.on('leftRoom', ({ params }) => {
+//         const user = removeUser(params);
+//         if (user) {
+//             const { room, name } = user;
+//             io.to(user.room).emit('message', {
+//                 data: {
+//                     user: { name: `${admin}`, message: `${name} has left` },
+//                 },
+//             });
+//             io.to(user.room).emit('joinRoom', {
+//                 data: { users: getRoomUsers(user.room) },
+//             });
+//         }
+//     });
+//     io.on('disconnect', () => {
+//         console.log('Disconnect');
+//     });
+// });
 function normalizePort(val) {
     const port = parseInt(val, 10);
     if (isNaN(port)) {
