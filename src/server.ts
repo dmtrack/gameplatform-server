@@ -12,6 +12,7 @@ const port = normalizePort(process.env.PORT || '8000');
 app.set('port', port);
 
 const server = http.createServer(app);
+console.log(server);
 
 server.listen(port);
 server.on('error', onError);
