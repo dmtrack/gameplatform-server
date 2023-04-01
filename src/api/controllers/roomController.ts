@@ -8,7 +8,6 @@ import {
 import { Server, Socket } from 'socket.io';
 import EVENTS from '../../config/events';
 import { IEnterUserProps } from '../../interfaces/messages';
-import { addUser } from '../../users';
 
 @SocketController()
 export class RoomController {
