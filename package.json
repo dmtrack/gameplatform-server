@@ -6,7 +6,7 @@
     "description": "",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "nodemon",
+        "start": "nodemon --config nodemon.json src/server.ts",
         "dev": "nodemon ./src/server.ts",
         "build": "tsc"
     },
