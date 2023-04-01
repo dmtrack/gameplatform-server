@@ -26,5 +26,6 @@ app.use(function (req, res, next) {
 });
 
 export const server = http.createServer(app);
+app.use(indexRouter);
 
 export default app;
