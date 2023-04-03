@@ -8,8 +8,14 @@ const EVENTS = {
         update_game: 'update_game',
         on_game_update: 'on_game_update',
         start_game: 'start_game',
+        start_game_first: 'start_game_first',
+        start_game_second: 'start_game_second',
         game_win: 'game_win',
         on_game_win: 'on_game_win',
+        chat_joined: 'chat_joined',
+        message: 'message',
+        on_message: 'on_message'
+
     },
     SERVER: {
         connect: 'connect',
@@ -22,9 +28,12 @@ const EVENTS = {
         start_game: 'start_game',
         start_game_first: 'start_game_first',
         start_game_second: 'start_game_second',
-
         game_win: 'game_win',
         on_game_win: 'on_game_win',
+        join_chat: 'join_chat',
+        chat_joined: 'chat_joined',
+        message: 'message',
+        on_message: 'on_message'
     },
 };
 

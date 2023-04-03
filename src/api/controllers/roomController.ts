@@ -8,6 +8,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import EVENTS from '../../config/events';
 import { IEnterUserProps } from '../../interfaces/messages';
+import { addUser } from '../../users';
 
 @SocketController()
 export class RoomController {
@@ -15,7 +16,7 @@ export class RoomController {
     public async joinGame(
         @SocketIO() io: Server,
         @ConnectedSocket() socket: Socket,
-        @MessageBody() message: any
+        @MessageBody() message: IEnterUserProps
     ) {
         const connectedSockets = io.sockets.adapter.rooms.get(message.room);
         console.log(connectedSockets, 'connected sockets');
@@ -33,33 +34,18 @@ export class RoomController {
             });
         } else {
             await socket.join(message.room);
-            socket.emit(EVENTS.SERVER.room_joined);
-            console.log(message.room);
+            await socket.emit(EVENTS.SERVER.room_joined);
 
             if (io.sockets.adapter.rooms.get(message.room).size === 2) {
-                socket.emit(EVENTS.SERVER.start_game, {
-                    start: false,
-                    symbol: 'x',
-                });
-                socket.to(message.room).emit(EVENTS.SERVER.start_game, {
-                    start: true,
-                    symbol: 'o',
-                });
+                console.log(socket.id);
+
+                if (io.sockets.adapter.rooms.get(message.room).size === 2) {
+                    socket.broadcast.emit(EVENTS.SERVER.start_game, {
+                        start: true,
+                        symbol: 'x',
+                    });
+                }
             }
         }
-
-        // socket.on('join', ({ name, room }) => {
-        //   socket.join(room);
-        //   const { user, isExist } = addUser({ name, room });
-        //   let userMessage = isExist
-        //       ? `${user.name}, let's continue messaging`
-        //       : `${user.name} welcome to the room ${user.room}`;
-        //   socket.emit('message', {
-        //       data: {
-        //           user: {
-        //               name: `${admin}`,
-        //               message: userMessage,
-        //           },
-        //       },
     }
 }
