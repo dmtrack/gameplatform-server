@@ -15,7 +15,7 @@ export class RoomController {
     public async joinGame(
         @SocketIO() io: Server,
         @ConnectedSocket() socket: Socket,
-        @MessageBody() message: IEnterUserProps
+        @MessageBody() message: any
     ) {
         const connectedSockets = io.sockets.adapter.rooms.get(message.room);
         console.log(connectedSockets, 'connected sockets');
@@ -34,7 +34,18 @@ export class RoomController {
         } else {
             await socket.join(message.room);
             socket.emit(EVENTS.SERVER.room_joined);
-            console.log('socketRooms', socketRooms);
+            console.log(message.room);
+
+            if (io.sockets.adapter.rooms.get(message.room).size === 2) {
+                socket.emit(EVENTS.SERVER.start_game, {
+                    start: false,
+                    symbol: 'x',
+                });
+                socket.to(message.room).emit(EVENTS.SERVER.start_game, {
+                    start: true,
+                    symbol: 'o',
+                });
+            }
         }
 
         // socket.on('join', ({ name, room }) => {
