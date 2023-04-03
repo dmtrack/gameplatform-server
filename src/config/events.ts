@@ -7,6 +7,9 @@ const EVENTS = {
         room_join_error: 'room_join_error',
         update_game: 'update_game',
         on_game_update: 'on_game_update',
+        start_game: 'start_game',
+        game_win: 'game_win',
+        on_game_win: 'on_game_win',
     },
     SERVER: {
         connect: 'connect',
@@ -16,6 +19,12 @@ const EVENTS = {
         room_join_error: 'room_join_error',
         update_game: 'update_game',
         on_game_update: 'on_game_update',
+        start_game: 'start_game',
+        start_game_first: 'start_game_first',
+        start_game_second: 'start_game_second',
+
+        game_win: 'game_win',
+        on_game_win: 'on_game_win',
     },
 };
 

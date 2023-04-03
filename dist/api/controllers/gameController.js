@@ -29,6 +29,10 @@ let GameController = class GameController {
         const gameRoom = this.getSocketGameRoom(socket);
         socket.to(gameRoom).emit(events_1.default.SERVER.on_game_update, message);
     }
+    async gameWin(io, socket, message) {
+        const gameRoom = this.getSocketGameRoom(socket);
+        socket.to(gameRoom).emit(events_1.default.SERVER.on_game_win, message);
+    }
 };
 __decorate([
     (0, socket_controllers_1.OnMessage)(events_1.default.SERVER.update_game),
@@ -40,6 +44,16 @@ __decorate([
         socket_io_1.Socket, Object]),
     __metadata("design:returntype", Promise)
 ], GameController.prototype, "updateGame", null);
+__decorate([
+    (0, socket_controllers_1.OnMessage)(events_1.default.SERVER.game_win),
+    __param(0, (0, socket_controllers_1.SocketIO)()),
+    __param(1, (0, socket_controllers_1.ConnectedSocket)()),
+    __param(2, (0, socket_controllers_1.MessageBody)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [socket_io_1.Server,
+        socket_io_1.Socket, Object]),
+    __metadata("design:returntype", Promise)
+], GameController.prototype, "gameWin", null);
 GameController = __decorate([
     (0, socket_controllers_1.SocketController)()
 ], GameController);

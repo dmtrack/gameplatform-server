@@ -7,8 +7,6 @@ import {
 import { Socket, Server } from 'socket.io';
 import { addUser, findUser, getRoomUsers, removeUser } from '../../users';
 
-const admin = 'admin';
-
 @SocketController()
 export class MainController {
     @OnConnect()

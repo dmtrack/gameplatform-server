@@ -31,9 +31,6 @@ const app_1 = __importDefault(require("./app"));
 const debug = require('debug')('socketio-server:server');
 const http = __importStar(require("http"));
 const socket_1 = __importDefault(require("./socket"));
-/**
- * Get port from environment and store in Express.
- */
 const port = normalizePort(process.env.PORT || '8000');
 app_1.default.set('port', port);
 const server = http.createServer(app_1.default);
@@ -41,8 +38,7 @@ console.log(server);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
-// const admin = 'admin';
-const io = (0, socket_1.default)(server);
+(0, socket_1.default)(server);
 // io.on('connection', (socket) => {
 //     socket.on('join', ({ name, room }) => {
 //         socket.join(room);

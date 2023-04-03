@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.MainController = void 0;
 const socket_controllers_1 = require("socket-controllers");
 const socket_io_1 = require("socket.io");
-const admin = 'admin';
 let MainController = class MainController {
     onConnection(socket, io) {
         console.log('new socket connected', socket.id);

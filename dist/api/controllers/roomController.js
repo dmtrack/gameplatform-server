@@ -32,8 +32,17 @@ let RoomController = class RoomController {
         }
         else {
             await socket.join(message.room);
-            socket.emit(events_1.default.SERVER.room_joined);
-            console.log('socketRooms', socketRooms);
+            socket.emit('room_joined');
+            if (io.sockets.adapter.rooms.get(message.room).size === 2) {
+                socket.emit(events_1.default.SERVER.start_game_first, {
+                    start: false,
+                    symbol: 'x',
+                });
+                socket.to(message.room).emit(events_1.default.SERVER.start_game_second, {
+                    start: true,
+                    symbol: 'o',
+                });
+            }
         }
         // socket.on('join', ({ name, room }) => {
         //   socket.join(room);
