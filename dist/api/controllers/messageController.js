@@ -15,38 +15,32 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RoomController = void 0;
+exports.ChatController = void 0;
 const socket_controllers_1 = require("socket-controllers");
 const socket_io_1 = require("socket.io");
 const events_1 = __importDefault(require("../../config/events"));
-let RoomController = class RoomController {
-    async joinGame(io, socket, message) {
-        const connectedSockets = io.sockets.adapter.rooms.get(message.room);
-        console.log(connectedSockets, 'connected sockets');
-        const socketRooms = Array.from(socket.rooms.values()).filter((r) => r !== socket.id);
-        if (socketRooms.length > 0 ||
-            (connectedSockets && connectedSockets.size === 2)) {
-            socket.emit(events_1.default.SERVER.room_join_error, {
-                error: 'Room is full, please choose another room to play',
-            });
-        }
-        else {
-            await socket.join(message.room);
-            await socket.emit(events_1.default.SERVER.room_joined);
-            if (io.sockets.adapter.rooms.get(message.room).size === 2) {
-                console.log(socket.id);
-                if (io.sockets.adapter.rooms.get(message.room).size === 2) {
-                    socket.broadcast.emit(events_1.default.SERVER.start_game, {
-                        start: true,
-                        symbol: 'x',
-                    });
-                }
-            }
-        }
+const users_1 = require("../../users");
+let ChatController = class ChatController {
+    async joinChat(io, socket, message) {
+        const { user, isExist } = await (0, users_1.addUser)(message.name);
+        let userMessage = isExist
+            ? `${user.name}, let's continue messaging`
+            : `${user.name} welcome to the room ${user.room}`;
+        await socket.emit(events_1.default.SERVER.chat_joined, {
+            data: {
+                user: {
+                    name: `wall-e`,
+                    message: userMessage,
+                },
+            },
+        });
+    }
+    async sendMessage(io, socket, params) {
+        await io.to(params.room).emit(events_1.default.SERVER.on_message, params);
     }
 };
 __decorate([
-    (0, socket_controllers_1.OnMessage)(events_1.default.SERVER.join_game),
+    (0, socket_controllers_1.OnMessage)(events_1.default.SERVER.join_chat),
     __param(0, (0, socket_controllers_1.SocketIO)()),
     __param(1, (0, socket_controllers_1.ConnectedSocket)()),
     __param(2, (0, socket_controllers_1.MessageBody)()),
@@ -54,9 +48,19 @@ __decorate([
     __metadata("design:paramtypes", [socket_io_1.Server,
         socket_io_1.Socket, Object]),
     __metadata("design:returntype", Promise)
-], RoomController.prototype, "joinGame", null);
-RoomController = __decorate([
+], ChatController.prototype, "joinChat", null);
+__decorate([
+    (0, socket_controllers_1.OnMessage)(events_1.default.SERVER.message),
+    __param(0, (0, socket_controllers_1.SocketIO)()),
+    __param(1, (0, socket_controllers_1.ConnectedSocket)()),
+    __param(2, (0, socket_controllers_1.MessageBody)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [socket_io_1.Server,
+        socket_io_1.Socket, Object]),
+    __metadata("design:returntype", Promise)
+], ChatController.prototype, "sendMessage", null);
+ChatController = __decorate([
     (0, socket_controllers_1.SocketController)()
-], RoomController);
-exports.RoomController = RoomController;
-//# sourceMappingURL=roomController.js.map
+], ChatController);
+exports.ChatController = ChatController;
+//# sourceMappingURL=messageController.js.map
