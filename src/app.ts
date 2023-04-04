@@ -1,4 +1,4 @@
-var express = require('express');
+const express = require('express');
 const cors = require('cors');
 import 'reflect-metadata';
 const http = require('http');
